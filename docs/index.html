@@ -450,7 +450,7 @@
             <div class="hero-content">
                 <div class="hero-badge">
                     <span class="dot"></span>
-                    实时数据 · 507+ 原创报道 · 7×24 快讯
+                    <span id="hero-badge-text">实时数据 · 加载中... · 7×24 快讯</span>
                 </div>
                 <h1>
                     让你的 AI Agent<br>
@@ -506,11 +506,11 @@
         <div class="container">
             <div class="stats-grid">
                 <div class="stat reveal">
-                    <div class="stat-number" id="stat-reports">507</div>
+                    <div class="stat-number" id="stat-reports">--</div>
                     <div class="stat-label">原创深度报道</div>
                 </div>
                 <div class="stat reveal">
-                    <div class="stat-number">17</div>
+                    <div class="stat-number" id="stat-categories">--</div>
                     <div class="stat-label">赛道分类</div>
                 </div>
                 <div class="stat reveal">
@@ -721,29 +721,13 @@
     <section class="section" id="data" style="padding-top: 80px; text-align: center;">
         <div class="container">
             <span class="section-label reveal" style="justify-content: center;">Coverage</span>
-            <h2 class="section-title reveal" style="max-width: 100%;">覆盖 17 个创投赛道</h2>
+            <h2 class="section-title reveal" style="max-width: 100%;" id="cats-title">覆盖创投赛道</h2>
             <p class="section-desc reveal" style="margin-left: auto; margin-right: auto;">
                 从 AI 到太空科技，从金融科技到气候科技——全面覆盖全球创业生态。
             </p>
 
-            <div class="cats-grid reveal">
-                <span class="cat-pill">AI人工智能 <span class="cat-count">176</span></span>
-                <span class="cat-pill">前沿科技 <span class="cat-count">55</span></span>
-                <span class="cat-pill">金融科技 <span class="cat-count">51</span></span>
-                <span class="cat-pill">医疗健康 <span class="cat-count">48</span></span>
-                <span class="cat-pill">企业SaaS <span class="cat-count">39</span></span>
-                <span class="cat-pill">生物科技 <span class="cat-count">37</span></span>
-                <span class="cat-pill">消费品牌 <span class="cat-count">18</span></span>
-                <span class="cat-pill">气候科技 <span class="cat-count">18</span></span>
-                <span class="cat-pill">硬件/芯片 <span class="cat-count">16</span></span>
-                <span class="cat-pill">Web3 <span class="cat-count">10</span></span>
-                <span class="cat-pill">加密货币 <span class="cat-count">8</span></span>
-                <span class="cat-pill">网络安全 <span class="cat-count">8</span></span>
-                <span class="cat-pill">娱乐游戏 <span class="cat-count">5</span></span>
-                <span class="cat-pill">机器人 <span class="cat-count">5</span></span>
-                <span class="cat-pill">太空科技 <span class="cat-count">4</span></span>
-                <span class="cat-pill">食品科技 <span class="cat-count">4</span></span>
-                <span class="cat-pill">风险投资 <span class="cat-count">3</span></span>
+            <div class="cats-grid reveal" id="cats-grid">
+                <span class="cat-pill" style="color: var(--text-muted);">正在从 recodex.ai 加载实时数据...</span>
             </div>
         </div>
     </section>
@@ -799,7 +783,7 @@
     <section class="cta-section">
         <div class="container">
             <h2 class="reveal">让你的 Agent<br><span style="background: var(--gradient-hero); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">成为创投情报专家</span></h2>
-            <p class="reveal">507+ 原创报道 · 17 个赛道 · 实时更新 · 零配置</p>
+            <p class="reveal" id="cta-stats">加载中... · 实时更新 · 零配置</p>
             <div class="hero-actions reveal" style="justify-content: center;">
                 <a href="https://github.com/recodex/recodex-skill" class="btn-primary" target="_blank">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
@@ -820,69 +804,102 @@
     </footer>
 
     <script>
-        // Scroll reveal
+        // ── Scroll reveal ──
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
+                if (entry.isIntersecting) entry.target.classList.add('visible');
             });
         }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-        // Nav scroll effect
+        // ── Nav scroll effect ──
         const nav = document.getElementById('nav');
-        let lastScroll = 0;
         window.addEventListener('scroll', () => {
-            const currentScroll = window.scrollY;
-            if (currentScroll > 100) {
+            if (window.scrollY > 100) {
                 nav.style.padding = '10px 0';
                 nav.style.borderBottomColor = 'rgba(99,130,255,0.15)';
             } else {
                 nav.style.padding = '16px 0';
                 nav.style.borderBottomColor = 'rgba(99,130,255,0.08)';
             }
-            lastScroll = currentScroll;
         });
 
-        // Animated counter
+        // ── Animated counter ──
         function animateCounter(el, target, duration = 1500) {
-            const start = 0;
             const startTime = performance.now();
-            function update(currentTime) {
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const eased = 1 - Math.pow(1 - progress, 3);
-                const current = Math.floor(start + (target - start) * eased);
-                el.textContent = current.toLocaleString();
-                if (progress < 1) requestAnimationFrame(update);
+            function update(t) {
+                const p = Math.min((t - startTime) / duration, 1);
+                const eased = 1 - Math.pow(1 - p, 3);
+                el.textContent = Math.floor(target * eased).toLocaleString();
+                if (p < 1) requestAnimationFrame(update);
                 else el.textContent = target.toLocaleString();
             }
             requestAnimationFrame(update);
         }
 
-        // Trigger counter animation when visible
-        const statObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const el = entry.target;
-                    const text = el.textContent;
-                    const num = parseInt(text.replace(/\D/g, ''));
-                    if (!isNaN(num) && num > 0 && !el.dataset.animated) {
-                        el.dataset.animated = 'true';
-                        animateCounter(el, num);
-                    }
-                }
-            });
-        }, { threshold: 0.5 });
+        // ── Live data fetch from recodex.ai API ──
+        const API = 'https://recodex.ai/wp-json/wp/v2';
 
-        document.querySelectorAll('.stat-number').forEach(el => {
-            const text = el.textContent;
-            if (/^\d+$/.test(text.trim())) {
-                statObserver.observe(el);
+        async function fetchLiveData() {
+            try {
+                // Fetch categories and startup count in parallel
+                const [catRes, startupRes] = await Promise.all([
+                    fetch(`${API}/startup_category?per_page=100`),
+                    fetch(`${API}/startup?per_page=1`),  // just need the total header
+                ]);
+
+                // ── Categories ──
+                const categories = await catRes.json();
+                categories.sort((a, b) => b.count - a.count);
+                const totalCats = categories.length;
+
+                // ── Total startup reports (from X-WP-Total header) ──
+                const totalReports = parseInt(startupRes.headers.get('X-WP-Total')) || 0;
+
+                // ── Update hero badge ──
+                const badge = document.getElementById('hero-badge-text');
+                if (badge) badge.textContent = `实时数据 · ${totalReports}+ 原创报道 · 7×24 快讯`;
+
+                // ── Update stats ──
+                const statReports = document.getElementById('stat-reports');
+                if (statReports) animateCounter(statReports, totalReports);
+                const statCats = document.getElementById('stat-categories');
+                if (statCats) animateCounter(statCats, totalCats);
+
+                // ── Update categories title ──
+                const catsTitle = document.getElementById('cats-title');
+                if (catsTitle) catsTitle.textContent = `覆盖 ${totalCats} 个创投赛道`;
+
+                // ── Render live category pills ──
+                const catsGrid = document.getElementById('cats-grid');
+                if (catsGrid) {
+                    catsGrid.innerHTML = categories.map(c =>
+                        `<span class="cat-pill">${c.name} <span class="cat-count">${c.count}</span></span>`
+                    ).join('');
+                }
+
+                // ── Update CTA stats ──
+                const ctaStats = document.getElementById('cta-stats');
+                if (ctaStats) ctaStats.textContent = `${totalReports}+ 原创报道 · ${totalCats} 个赛道 · 实时更新 · 零配置`;
+
+            } catch (err) {
+                console.warn('Failed to fetch live data, using fallback:', err);
+                // Fallback to static values if API is unreachable
+                const badge = document.getElementById('hero-badge-text');
+                if (badge) badge.textContent = '实时数据 · 500+ 原创报道 · 7×24 快讯';
+                const statReports = document.getElementById('stat-reports');
+                if (statReports) { statReports.textContent = '500+'; }
+                const statCats = document.getElementById('stat-categories');
+                if (statCats) { statCats.textContent = '17'; }
+                const catsTitle = document.getElementById('cats-title');
+                if (catsTitle) catsTitle.textContent = '覆盖 17 个创投赛道';
+                const ctaStats = document.getElementById('cta-stats');
+                if (ctaStats) ctaStats.textContent = '500+ 原创报道 · 17 个赛道 · 实时更新 · 零配置';
             }
-        });
+        }
+
+        // Fetch live data on page load
+        fetchLiveData();
     </script>
 </body>
 </html>
