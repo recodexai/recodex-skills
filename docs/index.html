@@ -120,7 +120,10 @@
             min-height: 100vh; display: flex; align-items: center;
             padding-top: 100px; position: relative; overflow: hidden;
         }
-        .hero-content { position: relative; z-index: 2; max-width: 720px; }
+        .hero > .container {
+            display: flex; align-items: center; gap: 60px;
+        }
+        .hero-content { position: relative; z-index: 2; flex: 1; min-width: 0; }
         .hero-badge {
             display: inline-flex; align-items: center; gap: 10px;
             padding: 6px 16px 6px 8px; border-radius: 100px;
@@ -189,11 +192,10 @@
 
         /* Hero Terminal Preview */
         .hero-terminal {
-            position: absolute; right: -40px; top: 50%; transform: translateY(-50%);
-            width: 520px; z-index: 1;
+            flex: 0 0 480px; z-index: 1;
             animation: fadeSlideLeft 1s ease-out 0.5s both;
         }
-        @media (max-width: 1100px) { .hero-terminal { display: none; } }
+        @media (max-width: 1100px) { .hero-terminal { display: none; } .hero > .container { gap: 0; } }
 
         .terminal {
             background: rgba(12, 16, 28, 0.85);
@@ -228,8 +230,8 @@
             to { opacity: 1; transform: translateY(0); }
         }
         @keyframes fadeSlideLeft {
-            from { opacity: 0; transform: translate(40px, -50%); }
-            to { opacity: 1; transform: translate(0, -50%); }
+            from { opacity: 0; transform: translateX(40px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         /* ── Stats Bar ────────────────────────────────────── */
@@ -446,7 +448,7 @@
 
     <!-- Hero -->
     <section class="hero" id="hero">
-        <div class="container" style="position: relative;">
+        <div class="container">
             <div class="hero-content">
                 <div class="hero-badge">
                     <span class="dot"></span>
