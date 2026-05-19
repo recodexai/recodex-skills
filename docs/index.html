@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RecodeX Skills — AI Agent 创投情报源</title>
+    <meta name="description" content="RecodeX Intelligence Skill 让 AI Agent 实时检索全球创业公司融资数据、原创报道和快讯。高级版 RSS，为 Agent 而生。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ── Reset & Variables ─────────────────────────────── */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #06080d;
+            --bg-secondary: #0c1018;
+            --bg-card: rgba(16, 22, 36, 0.7);
+            --bg-glass: rgba(16, 22, 36, 0.45);
+            --border-subtle: rgba(99, 130, 255, 0.12);
+            --border-glow: rgba(99, 130, 255, 0.3);
+            --text-primary: #e8ecf4;
+            --text-secondary: #8a95b0;
+            --text-muted: #5a6580;
+            --accent-blue: #6382ff;
+            --accent-purple: #a855f7;
+            --accent-cyan: #22d3ee;
+            --accent-green: #34d399;
+            --accent-orange: #f59e0b;
+            --gradient-primary: linear-gradient(135deg, #6382ff, #a855f7);
+            --gradient-hero: linear-gradient(160deg, #6382ff 0%, #a855f7 40%, #22d3ee 100%);
+            --gradient-mesh: radial-gradient(ellipse at 20% 50%, rgba(99,130,255,0.08) 0%, transparent 50%),
+                             radial-gradient(ellipse at 80% 20%, rgba(168,85,247,0.06) 0%, transparent 50%),
+                             radial-gradient(ellipse at 60% 80%, rgba(34,211,238,0.05) 0%, transparent 50%);
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --radius-xs: 6px;
+        }
+
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Utility ──────────────────────────────────────── */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+        .section { padding: 120px 0; position: relative; }
+        .section-label {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 13px; font-weight: 600; letter-spacing: 0.08em;
+            text-transform: uppercase; color: var(--accent-blue);
+            margin-bottom: 20px;
+        }
+        .section-label::before {
+            content: ''; width: 8px; height: 8px; border-radius: 50%;
+            background: var(--accent-blue); box-shadow: 0 0 12px var(--accent-blue);
+        }
+        .section-title {
+            font-size: clamp(2rem, 4vw, 3rem); font-weight: 800;
+            line-height: 1.2; margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .section-desc { font-size: 1.1rem; color: var(--text-secondary); max-width: 640px; margin-bottom: 48px; }
+
+        /* ── Animated Mesh Background ─────────────────────── */
+        .mesh-bg {
+            position: fixed; inset: 0; z-index: -1;
+            background: var(--gradient-mesh);
+            animation: meshDrift 20s ease-in-out infinite alternate;
+        }
+        @keyframes meshDrift {
+            0% { background-position: 0% 0%, 100% 0%, 50% 100%; }
+            100% { background-position: 100% 100%, 0% 100%, 80% 0%; }
+        }
+
+        /* ── Navigation ──────────────────────────────────── */
+        .nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            padding: 16px 0;
+            background: rgba(6, 8, 13, 0.75);
+            backdrop-filter: blur(20px) saturate(1.5);
+            -webkit-backdrop-filter: blur(20px) saturate(1.5);
+            border-bottom: 1px solid var(--border-subtle);
+            transition: all 0.3s ease;
+        }
+        .nav .container { display: flex; align-items: center; justify-content: space-between; }
+        .nav-logo {
+            font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em;
+            background: var(--gradient-primary); -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; background-clip: text;
+            text-decoration: none;
+        }
+        .nav-logo span { -webkit-text-fill-color: var(--text-primary); }
+        .nav-links { display: flex; gap: 32px; list-style: none; }
+        .nav-links a {
+            color: var(--text-secondary); text-decoration: none;
+            font-size: 0.9rem; font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--text-primary); }
+        .nav-cta {
+            padding: 8px 20px; border-radius: 8px;
+            background: var(--gradient-primary);
+            color: #fff; font-size: 0.85rem; font-weight: 600;
+            text-decoration: none; transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(99,130,255,0.3); }
+
+        /* ── Hero ─────────────────────────────────────────── */
+        .hero {
+            min-height: 100vh; display: flex; align-items: center;
+            padding-top: 100px; position: relative; overflow: hidden;
+        }
+        .hero-content { position: relative; z-index: 2; max-width: 720px; }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 6px 16px 6px 8px; border-radius: 100px;
+            background: rgba(99, 130, 255, 0.1);
+            border: 1px solid rgba(99, 130, 255, 0.2);
+            font-size: 0.8rem; font-weight: 500; color: var(--accent-blue);
+            margin-bottom: 32px;
+            animation: fadeSlideUp 0.8s ease-out;
+        }
+        .hero-badge .dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--accent-green);
+            box-shadow: 0 0 8px var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        .hero h1 {
+            font-size: clamp(2.8rem, 6vw, 4.2rem); font-weight: 900;
+            line-height: 1.1; letter-spacing: -0.03em;
+            margin-bottom: 24px;
+            animation: fadeSlideUp 0.8s ease-out 0.1s both;
+        }
+        .hero h1 .gradient {
+            background: var(--gradient-hero);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero p {
+            font-size: 1.2rem; color: var(--text-secondary);
+            margin-bottom: 40px; max-width: 560px;
+            animation: fadeSlideUp 0.8s ease-out 0.2s both;
+        }
+        .hero-actions {
+            display: flex; gap: 16px; flex-wrap: wrap;
+            animation: fadeSlideUp 0.8s ease-out 0.3s both;
+        }
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 14px 28px; border-radius: 12px;
+            background: var(--gradient-primary);
+            color: #fff; font-size: 0.95rem; font-weight: 600;
+            text-decoration: none; border: none; cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(99,130,255,0.35); }
+        .btn-secondary {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 14px 28px; border-radius: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary); font-size: 0.95rem; font-weight: 500;
+            text-decoration: none; cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .btn-secondary:hover { border-color: var(--border-glow); background: rgba(99,130,255,0.08); }
+
+        /* Hero Glow */
+        .hero-glow {
+            position: absolute; right: -200px; top: 0;
+            width: 800px; height: 800px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(99,130,255,0.12) 0%, rgba(168,85,247,0.06) 40%, transparent 70%);
+            filter: blur(80px); animation: glowFloat 8s ease-in-out infinite alternate;
+        }
+        @keyframes glowFloat { 0% { transform: translate(0, 0); } 100% { transform: translate(-60px, 40px); } }
+
+        /* Hero Terminal Preview */
+        .hero-terminal {
+            position: absolute; right: -40px; top: 50%; transform: translateY(-50%);
+            width: 520px; z-index: 1;
+            animation: fadeSlideLeft 1s ease-out 0.5s both;
+        }
+        @media (max-width: 1100px) { .hero-terminal { display: none; } }
+
+        .terminal {
+            background: rgba(12, 16, 28, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(99,130,255,0.05);
+        }
+        .terminal-header {
+            display: flex; align-items: center; gap: 8px;
+            padding: 14px 18px;
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .terminal-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .terminal-dot.red { background: #ff5f57; }
+        .terminal-dot.yellow { background: #febc2e; }
+        .terminal-dot.green { background: #28c840; }
+        .terminal-title { flex: 1; text-align: center; font-size: 0.75rem; color: var(--text-muted); }
+        .terminal-body { padding: 20px; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.8; }
+        .terminal-body .prompt { color: var(--accent-green); }
+        .terminal-body .cmd { color: var(--text-primary); }
+        .terminal-body .comment { color: var(--text-muted); }
+        .terminal-body .output { color: var(--accent-cyan); }
+        .terminal-body .key { color: var(--accent-purple); }
+        .terminal-body .val { color: var(--accent-orange); }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeSlideLeft {
+            from { opacity: 0; transform: translate(40px, -50%); }
+            to { opacity: 1; transform: translate(0, -50%); }
+        }
+
+        /* ── Stats Bar ────────────────────────────────────── */
+        .stats-bar {
+            border-top: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 48px 0;
+            background: rgba(12, 16, 28, 0.4);
+        }
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px;
+        }
+        .stat { text-align: center; }
+        .stat-number {
+            font-size: 2.5rem; font-weight: 800; letter-spacing: -0.03em;
+            background: var(--gradient-primary); -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
+
+        /* ── What Is It ──────────────────────────────────── */
+        .comparison-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .compare-card {
+            padding: 32px; border-radius: var(--radius);
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+        }
+        .compare-card:hover { border-color: var(--border-glow); transform: translateY(-4px); }
+        .compare-card.featured {
+            border-color: rgba(99,130,255,0.3);
+            background: rgba(99,130,255,0.06);
+            box-shadow: 0 0 40px rgba(99,130,255,0.08);
+        }
+        .compare-card.featured:hover { box-shadow: 0 0 60px rgba(99,130,255,0.12); }
+        .compare-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; margin-bottom: 20px;
+        }
+        .compare-icon.rss { background: rgba(245,158,11,0.12); }
+        .compare-icon.api { background: rgba(34,211,238,0.12); }
+        .compare-icon.skill { background: rgba(99,130,255,0.15); }
+        .compare-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+        .compare-card .subtitle { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px; }
+        .compare-list { list-style: none; }
+        .compare-list li {
+            padding: 8px 0; font-size: 0.9rem; color: var(--text-secondary);
+            display: flex; align-items: flex-start; gap: 10px;
+        }
+        .compare-list .icon-yes { color: var(--accent-green); flex-shrink: 0; }
+        .compare-list .icon-no { color: #ef4444; flex-shrink: 0; }
+
+        /* ── How It Works ─────────────────────────────────── */
+        .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+        .step-card {
+            padding: 32px; border-radius: var(--radius);
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-subtle);
+            transition: border-color 0.3s, transform 0.3s;
+        }
+        .step-card:hover { border-color: var(--border-glow); transform: translateY(-4px); }
+        .step-number {
+            width: 40px; height: 40px; border-radius: 10px;
+            background: var(--gradient-primary);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 1.1rem; color: #fff;
+            margin-bottom: 20px;
+        }
+        .step-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+        .step-card p { font-size: 0.9rem; color: var(--text-secondary); }
+
+        /* ── Commands ─────────────────────────────────────── */
+        .commands-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .cmd-card {
+            padding: 28px; border-radius: var(--radius);
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-subtle);
+            transition: border-color 0.3s, transform 0.3s;
+        }
+        .cmd-card:hover { border-color: var(--border-glow); transform: translateY(-3px); }
+        .cmd-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .cmd-icon {
+            width: 36px; height: 36px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+        }
+        .cmd-name { font-family: var(--font-mono); font-weight: 600; font-size: 1rem; color: var(--accent-blue); }
+        .cmd-desc { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 14px; }
+        .cmd-example {
+            background: rgba(6, 8, 13, 0.6);
+            border: 1px solid rgba(99,130,255,0.08);
+            border-radius: var(--radius-xs); padding: 12px 16px;
+            font-family: var(--font-mono); font-size: 0.78rem;
+            color: var(--accent-cyan); overflow-x: auto; white-space: nowrap;
+        }
+
+        /* ── Code Preview ────────────────────────────────── */
+        .code-section { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+        .code-section .terminal { width: 100%; }
+        .code-info h3 { font-size: 1.5rem; font-weight: 700; margin-bottom: 16px; }
+        .code-info p { color: var(--text-secondary); margin-bottom: 24px; }
+        .feature-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+        .feature-tag {
+            padding: 6px 14px; border-radius: 100px;
+            background: rgba(99,130,255,0.08);
+            border: 1px solid rgba(99,130,255,0.15);
+            font-size: 0.8rem; color: var(--accent-blue); font-weight: 500;
+        }
+
+        /* ── Categories Showcase ─────────────────────────── */
+        .cats-grid { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+        .cat-pill {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 20px; border-radius: 100px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-subtle);
+            font-size: 0.9rem; font-weight: 500;
+            transition: all 0.3s;
+        }
+        .cat-pill:hover { border-color: var(--border-glow); transform: translateY(-2px); }
+        .cat-count {
+            font-size: 0.75rem; font-weight: 700;
+            color: var(--accent-blue); background: rgba(99,130,255,0.12);
+            padding: 2px 8px; border-radius: 100px;
+        }
+
+        /* ── Install ──────────────────────────────────────── */
+        .install-steps { max-width: 700px; }
+        .install-step {
+            padding: 24px 0;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex; gap: 20px; align-items: flex-start;
+        }
+        .install-step:last-child { border-bottom: none; }
+        .install-num {
+            width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+            background: var(--gradient-primary);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 0.85rem; color: #fff;
+        }
+        .install-step h4 { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+        .install-step p { font-size: 0.88rem; color: var(--text-secondary); }
+        .install-code {
+            margin-top: 10px; padding: 10px 16px;
+            background: rgba(6,8,13,0.7); border: 1px solid rgba(99,130,255,0.08);
+            border-radius: var(--radius-xs);
+            font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent-cyan);
+            overflow-x: auto; white-space: nowrap;
+        }
+
+        /* ── CTA ──────────────────────────────────────────── */
+        .cta-section {
+            text-align: center; padding: 120px 0;
+            background: radial-gradient(ellipse at center, rgba(99,130,255,0.08) 0%, transparent 60%);
+        }
+        .cta-section h2 {
+            font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 800;
+            margin-bottom: 16px;
+        }
+        .cta-section p { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 40px; }
+
+        /* ── Footer ───────────────────────────────────────── */
+        .footer {
+            padding: 40px 0;
+            border-top: 1px solid var(--border-subtle);
+            text-align: center; font-size: 0.85rem; color: var(--text-muted);
+        }
+        .footer a { color: var(--accent-blue); text-decoration: none; }
+
+        /* ── Responsive ──────────────────────────────────── */
+        @media (max-width: 768px) {
+            .container { padding: 0 20px; }
+            .section { padding: 80px 0; }
+            .comparison-grid, .steps-grid, .commands-grid, .code-section { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+            .nav-links { display: none; }
+            .hero h1 { font-size: 2.2rem; }
+        }
+
+        /* ── Scroll Reveal ────────────────────────────────── */
+        .reveal {
+            opacity: 0; transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+    <div class="mesh-bg"></div>
+
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+        <div class="container">
+            <a href="#" class="nav-logo">RecodeX <span>Skills</span></a>
+            <ul class="nav-links">
+                <li><a href="#what">是什么</a></li>
+                <li><a href="#how">怎么用</a></li>
+                <li><a href="#commands">命令</a></li>
+                <li><a href="#data">数据</a></li>
+                <li><a href="#install">安装</a></li>
+            </ul>
+            <a href="#install" class="nav-cta">开始使用 →</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero" id="hero">
+        <div class="container" style="position: relative;">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="dot"></span>
+                    实时数据 · 507+ 原创报道 · 7×24 快讯
+                </div>
+                <h1>
+                    让你的 AI Agent<br>
+                    <span class="gradient">读懂全球创投</span>
+                </h1>
+                <p>
+                    RecodeX Intelligence Skill 是为 AI Agent 设计的创投情报源。
+                    不是 RSS，不是 API——是 Agent 可以直接理解、检索和行动的结构化数据层。
+                </p>
+                <div class="hero-actions">
+                    <a href="#install" class="btn-primary">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        安装 Skill
+                    </a>
+                    <a href="#what" class="btn-secondary">
+                        了解更多
+                    </a>
+                </div>
+            </div>
+
+            <div class="hero-terminal">
+                <div class="terminal">
+                    <div class="terminal-header">
+                        <span class="terminal-dot red"></span>
+                        <span class="terminal-dot yellow"></span>
+                        <span class="terminal-dot green"></span>
+                        <span class="terminal-title">recodex_cli.py</span>
+                    </div>
+                    <div class="terminal-body">
+                        <div><span class="comment"># 查询最新 AI 赛道融资</span></div>
+                        <div><span class="prompt">$ </span><span class="cmd">recodex_cli.py category --name "AI人工智能" --limit 3</span></div>
+                        <br>
+                        <div><span class="output">✓ 3 results written to: ai.json</span></div>
+                        <br>
+                        <div style="color: var(--text-muted)">┌──────────────────────────────────────┐</div>
+                        <div><span class="key"> company</span>: <span class="val">"Ocean"</span></div>
+                        <div><span class="key"> funding</span>: <span class="val">"$2800万 · Seed"</span></div>
+                        <div><span class="key"> investors</span>: <span class="val">"Lightspeed"</span></div>
+                        <div><span class="key"> ─────────</span></div>
+                        <div><span class="key"> company</span>: <span class="val">"Cimento AI"</span></div>
+                        <div><span class="key"> funding</span>: <span class="val">"$300万 · Seed"</span></div>
+                        <div><span class="key"> investors</span>: <span class="val">"..."</span></div>
+                        <div style="color: var(--text-muted)">└──────────────────────────────────────┘</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-glow"></div>
+    </section>
+
+    <!-- Stats -->
+    <div class="stats-bar">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat reveal">
+                    <div class="stat-number" id="stat-reports">507</div>
+                    <div class="stat-label">原创深度报道</div>
+                </div>
+                <div class="stat reveal">
+                    <div class="stat-number">17</div>
+                    <div class="stat-label">赛道分类</div>
+                </div>
+                <div class="stat reveal">
+                    <div class="stat-number">7×24</div>
+                    <div class="stat-label">实时快讯推送</div>
+                </div>
+                <div class="stat reveal">
+                    <div class="stat-number">6</div>
+                    <div class="stat-label">CLI 子命令</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- What Is It -->
+    <section class="section" id="what">
+        <div class="container">
+            <span class="section-label reveal">What Is It</span>
+            <h2 class="section-title reveal">不是 RSS，不是 API<br>是 Agent 原生的情报源</h2>
+            <p class="section-desc reveal">
+                传统的信息订阅方式是给人类设计的。RecodeX Skill 是为 AI Agent 设计的——结构化、可检索、可直接用于决策。
+            </p>
+
+            <div class="comparison-grid">
+                <div class="compare-card reveal">
+                    <div class="compare-icon rss">📡</div>
+                    <h3>传统 RSS</h3>
+                    <div class="subtitle">为人类阅读器设计</div>
+                    <ul class="compare-list">
+                        <li><span class="icon-no">✗</span> 返回原始 XML，需解析</li>
+                        <li><span class="icon-no">✗</span> 无结构化融资元数据</li>
+                        <li><span class="icon-no">✗</span> 无法按赛道/金额筛选</li>
+                        <li><span class="icon-no">✗</span> Agent 无法直接理解</li>
+                    </ul>
+                </div>
+                <div class="compare-card reveal">
+                    <div class="compare-icon api">⚙️</div>
+                    <h3>REST API</h3>
+                    <div class="subtitle">为开发者集成设计</div>
+                    <ul class="compare-list">
+                        <li><span class="icon-yes">✓</span> 返回 JSON</li>
+                        <li><span class="icon-no">✗</span> 需编写集成代码</li>
+                        <li><span class="icon-no">✗</span> 需了解端点结构</li>
+                        <li><span class="icon-no">✗</span> Agent 无法自动发现</li>
+                    </ul>
+                </div>
+                <div class="compare-card featured reveal">
+                    <div class="compare-icon skill">⚡</div>
+                    <h3>RecodeX Skill</h3>
+                    <div class="subtitle">为 AI Agent 原生设计</div>
+                    <ul class="compare-list">
+                        <li><span class="icon-yes">✓</span> 结构化 JSON 输出</li>
+                        <li><span class="icon-yes">✓</span> 内置融资元数据</li>
+                        <li><span class="icon-yes">✓</span> 一条命令按赛道筛选</li>
+                        <li><span class="icon-yes">✓</span> Agent 自动识别和调用</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="section" id="how" style="padding-top: 80px;">
+        <div class="container">
+            <span class="section-label reveal">How It Works</span>
+            <h2 class="section-title reveal">三步接入，零代码开发</h2>
+            <p class="section-desc reveal">
+                安装 Skill 后，你的 AI Agent 就能用自然语言查询全球创投数据。无需 API Key，无需编码。
+            </p>
+
+            <div class="steps-grid">
+                <div class="step-card reveal">
+                    <div class="step-number">1</div>
+                    <h3>安装 Plugin</h3>
+                    <p>将 <code>recodex</code> 目录放入 Agent 的 plugins 文件夹。零依赖，纯 Python stdlib。</p>
+                </div>
+                <div class="step-card reveal">
+                    <div class="step-number">2</div>
+                    <h3>自然语言提问</h3>
+                    <p>"帮我看看今天有哪些 AI 赛道的融资"<br>"查一下 a16z 最近投了哪些公司"<br>Agent 自动识别并调用。</p>
+                </div>
+                <div class="step-card reveal">
+                    <div class="step-number">3</div>
+                    <h3>获取结构化结果</h3>
+                    <p>返回公司名、融资金额、轮次、投资方、官网等结构化数据，直接辅助投资决策。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Commands -->
+    <section class="section" id="commands" style="padding-top: 80px;">
+        <div class="container">
+            <span class="section-label reveal">Commands</span>
+            <h2 class="section-title reveal">六大命令，覆盖所有场景</h2>
+            <p class="section-desc reveal">
+                从最新动态到精准筛选，一行命令获取你需要的创投数据。
+            </p>
+
+            <div class="commands-grid">
+                <div class="cmd-card reveal">
+                    <div class="cmd-header">
+                        <div class="cmd-icon" style="background:rgba(34,211,238,0.12);">🕐</div>
+                        <span class="cmd-name">latest</span>
+                    </div>
+                    <div class="cmd-desc">获取最新的原创报道或快讯，按发布时间倒序排列。</div>
+                    <div class="cmd-example">recodex_cli.py latest --type startup --limit 10 --output latest.json</div>
+                </div>
+
+                <div class="cmd-card reveal">
+                    <div class="cmd-header">
+                        <div class="cmd-icon" style="background:rgba(168,85,247,0.12);">🔍</div>
+                        <span class="cmd-name">search</span>
+                    </div>
+                    <div class="cmd-desc">按关键词全文搜索——公司名、投资方、技术领域。</div>
+                    <div class="cmd-example">recodex_cli.py search --query "a16z" --type startup --limit 10</div>
+                </div>
+
+                <div class="cmd-card reveal">
+                    <div class="cmd-header">
+                        <div class="cmd-icon" style="background:rgba(99,130,255,0.12);">📂</div>
+                        <span class="cmd-name">category</span>
+                    </div>
+                    <div class="cmd-desc">按赛道分类浏览，覆盖 AI、金融科技、医疗等 17 个赛道。</div>
+                    <div class="cmd-example">recodex_cli.py category --name "AI人工智能" --limit 10</div>
+                </div>
+
+                <div class="cmd-card reveal">
+                    <div class="cmd-header">
+                        <div class="cmd-icon" style="background:rgba(52,211,153,0.12);">🏢</div>
+                        <span class="cmd-name">company</span>
+                    </div>
+                    <div class="cmd-desc">精确查询特定公司的融资详情和完整报道。</div>
+                    <div class="cmd-example">recodex_cli.py company --name "Ocean" --output ocean.json</div>
+                </div>
+
+                <div class="cmd-card reveal">
+                    <div class="cmd-header">
+                        <div class="cmd-icon" style="background:rgba(245,158,11,0.12);">🔥</div>
+                        <span class="cmd-name">trending</span>
+                    </div>
+                    <div class="cmd-desc">获取今日或本周的全部内容，掌握热点动态。</div>
+                    <div class="cmd-example">recodex_cli.py trending --period today --output today.json</div>
+                </div>
+
+                <div class="cmd-card reveal">
+                    <div class="cmd-header">
+                        <div class="cmd-icon" style="background:rgba(239,68,68,0.12);">💰</div>
+                        <span class="cmd-name">funding</span>
+                    </div>
+                    <div class="cmd-desc">按融资轮次或金额筛选，快速定位目标交易。</div>
+                    <div class="cmd-example">recodex_cli.py funding --round "Seed" --limit 20 --output seeds.json</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Output Preview -->
+    <section class="section" style="padding-top: 80px;">
+        <div class="container">
+            <div class="code-section">
+                <div class="code-info reveal">
+                    <span class="section-label">Output Format</span>
+                    <h3>结构化数据，Agent 即取即用</h3>
+                    <p>
+                        每篇报道都包含完整的融资元数据：公司名、金额、轮次、投资方、官网。
+                        Agent 无需解析 HTML，直接从 JSON 中提取关键信息进行分析和决策。
+                    </p>
+                    <div class="feature-tags">
+                        <span class="feature-tag">公司名</span>
+                        <span class="feature-tag">融资金额</span>
+                        <span class="feature-tag">融资轮次</span>
+                        <span class="feature-tag">投资方列表</span>
+                        <span class="feature-tag">公司官网</span>
+                        <span class="feature-tag">分类标签</span>
+                        <span class="feature-tag">内容摘要</span>
+                    </div>
+                </div>
+                <div class="terminal reveal">
+                    <div class="terminal-header">
+                        <span class="terminal-dot red"></span>
+                        <span class="terminal-dot yellow"></span>
+                        <span class="terminal-dot green"></span>
+                        <span class="terminal-title">output.json</span>
+                    </div>
+                    <div class="terminal-body" style="font-size: 0.78rem; line-height: 1.7;">
+<pre style="margin:0; color: var(--text-secondary);">{
+  <span class="key">"source"</span>: <span class="val">"recodex.ai"</span>,
+  <span class="key">"count"</span>: <span class="val">1</span>,
+  <span class="key">"results"</span>: [{
+    <span class="key">"id"</span>: <span class="val">240978</span>,
+    <span class="key">"title"</span>: <span class="val">"Ocean 获 2800 万美元融资..."</span>,
+    <span class="key">"company_name"</span>: <span class="val">"Ocean"</span>,
+    <span class="key">"funding_round"</span>: <span class="val">"Seed"</span>,
+    <span class="key">"funding_amount"</span>: <span class="val">"$2800万"</span>,
+    <span class="key">"investors"</span>: <span class="val">"Lightspeed..."</span>,
+    <span class="key">"website"</span>: <span class="val">"ocean.security"</span>,
+    <span class="key">"excerpt"</span>: <span class="val">"一家名为 Ocean..."</span>
+  }]
+}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories -->
+    <section class="section" id="data" style="padding-top: 80px; text-align: center;">
+        <div class="container">
+            <span class="section-label reveal" style="justify-content: center;">Coverage</span>
+            <h2 class="section-title reveal" style="max-width: 100%;">覆盖 17 个创投赛道</h2>
+            <p class="section-desc reveal" style="margin-left: auto; margin-right: auto;">
+                从 AI 到太空科技，从金融科技到气候科技——全面覆盖全球创业生态。
+            </p>
+
+            <div class="cats-grid reveal">
+                <span class="cat-pill">AI人工智能 <span class="cat-count">176</span></span>
+                <span class="cat-pill">前沿科技 <span class="cat-count">55</span></span>
+                <span class="cat-pill">金融科技 <span class="cat-count">51</span></span>
+                <span class="cat-pill">医疗健康 <span class="cat-count">48</span></span>
+                <span class="cat-pill">企业SaaS <span class="cat-count">39</span></span>
+                <span class="cat-pill">生物科技 <span class="cat-count">37</span></span>
+                <span class="cat-pill">消费品牌 <span class="cat-count">18</span></span>
+                <span class="cat-pill">气候科技 <span class="cat-count">18</span></span>
+                <span class="cat-pill">硬件/芯片 <span class="cat-count">16</span></span>
+                <span class="cat-pill">Web3 <span class="cat-count">10</span></span>
+                <span class="cat-pill">加密货币 <span class="cat-count">8</span></span>
+                <span class="cat-pill">网络安全 <span class="cat-count">8</span></span>
+                <span class="cat-pill">娱乐游戏 <span class="cat-count">5</span></span>
+                <span class="cat-pill">机器人 <span class="cat-count">5</span></span>
+                <span class="cat-pill">太空科技 <span class="cat-count">4</span></span>
+                <span class="cat-pill">食品科技 <span class="cat-count">4</span></span>
+                <span class="cat-pill">风险投资 <span class="cat-count">3</span></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Install -->
+    <section class="section" id="install" style="padding-top: 80px;">
+        <div class="container">
+            <span class="section-label reveal">Installation</span>
+            <h2 class="section-title reveal">60 秒完成安装</h2>
+            <p class="section-desc reveal">
+                零依赖，纯 Python stdlib，无需 pip install。
+            </p>
+
+            <div class="install-steps">
+                <div class="install-step reveal">
+                    <div class="install-num">1</div>
+                    <div>
+                        <h4>克隆 Plugin 到本地</h4>
+                        <p>将 RecodeX Plugin 目录复制到你的 Agent 插件目录。</p>
+                        <div class="install-code">
+                            git clone https://github.com/recodex/recodex-skill.git ~/.gemini/config/plugins/recodex
+                        </div>
+                    </div>
+                </div>
+                <div class="install-step reveal">
+                    <div class="install-num">2</div>
+                    <div>
+                        <h4>重启 Agent 会话</h4>
+                        <p>启动新的 AI Agent 会话，Skill 会自动加载到可用技能列表中。</p>
+                        <div class="install-code">
+                            # Skill 自动出现在 Available Skills 列表中<br>
+                            # 无需额外配置，即插即用
+                        </div>
+                    </div>
+                </div>
+                <div class="install-step reveal">
+                    <div class="install-num">3</div>
+                    <div>
+                        <h4>用自然语言提问</h4>
+                        <p>直接向你的 Agent 提问创投相关问题。</p>
+                        <div class="install-code">
+                            "帮我看看今天有哪些 AI 赛道的新融资"<br>
+                            "查一下 Lightspeed 最近投了哪些公司"<br>
+                            "Ocean 这家公司融了多少钱？"
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="reveal">让你的 Agent<br><span style="background: var(--gradient-hero); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">成为创投情报专家</span></h2>
+            <p class="reveal">507+ 原创报道 · 17 个赛道 · 实时更新 · 零配置</p>
+            <div class="hero-actions reveal" style="justify-content: center;">
+                <a href="https://github.com/recodex/recodex-skill" class="btn-primary" target="_blank">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    GitHub 获取
+                </a>
+                <a href="https://recodex.ai" class="btn-secondary" target="_blank">
+                    访问 RecodeX →
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>RecodeX Intelligence Skill · Built for AI Agents · <a href="https://recodex.ai" target="_blank">recodex.ai</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll reveal
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // Nav scroll effect
+        const nav = document.getElementById('nav');
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.scrollY;
+            if (currentScroll > 100) {
+                nav.style.padding = '10px 0';
+                nav.style.borderBottomColor = 'rgba(99,130,255,0.15)';
+            } else {
+                nav.style.padding = '16px 0';
+                nav.style.borderBottomColor = 'rgba(99,130,255,0.08)';
+            }
+            lastScroll = currentScroll;
+        });
+
+        // Animated counter
+        function animateCounter(el, target, duration = 1500) {
+            const start = 0;
+            const startTime = performance.now();
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const current = Math.floor(start + (target - start) * eased);
+                el.textContent = current.toLocaleString();
+                if (progress < 1) requestAnimationFrame(update);
+                else el.textContent = target.toLocaleString();
+            }
+            requestAnimationFrame(update);
+        }
+
+        // Trigger counter animation when visible
+        const statObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const text = el.textContent;
+                    const num = parseInt(text.replace(/\D/g, ''));
+                    if (!isNaN(num) && num > 0 && !el.dataset.animated) {
+                        el.dataset.animated = 'true';
+                        animateCounter(el, num);
+                    }
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('.stat-number').forEach(el => {
+            const text = el.textContent;
+            if (/^\d+$/.test(text.trim())) {
+                statObserver.observe(el);
+            }
+        });
+    </script>
+</body>
+</html>
